@@ -19,7 +19,7 @@ var (
 	brightness_path = "/sys/class/backlight/intel_backlight/brightness"
 	max_path        = "/sys/class/backlight/intel_backlight/max_brightness"
 	levels          = []int{
-		1, 5, 8, 12, 18, 27, 40, 60, 90, 135, 202, 303, 454, 852,
+		1, 3, 5, 8, 12, 18, 27, 40, 60, 90, 135, 202, 303, 454, 852,
 	}
 )
 
