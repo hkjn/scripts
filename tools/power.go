@@ -10,7 +10,13 @@ import (
 	"strings"
 )
 
+// Glob for SysFS paths, within which energy_now, energy_full and status files are assumed to exist.
 var path = "/sys/class/power_supply/BAT*/"
+
+type battery struct {
+	current float32 // current charge, [0.0, 1.0]
+	status  string  // status of battery
+}
 
 // readGlob reads the file contents at a glob and returns their contents.
 func readGlob(glob string) ([]string, error) {
@@ -29,10 +35,11 @@ func readGlob(glob string) ([]string, error) {
 	return result, nil
 }
 
+// getBatteries reads SysFS paths to find status of batteries.
 func getBatteries() ([]battery, error) {
 	pwr, err := readGlob(path + "energy_now")
 	if err != nil {
-		return []battery{}, fmt.Errorf("couldn't read SysFS %s/power_now: %v\n", path, err)
+		return []battery{}, fmt.Errorf("couldn't read SysFS %s/energy_now: %v\n", path, err)
 	}
 	status, err := readGlob(path + "status")
 	if err != nil {
@@ -67,11 +74,6 @@ func parseCharge(p, f string) (float32, error) {
 		return 0.0, err
 	}
 	return float32(pi) / float32(fi), nil
-}
-
-type battery struct {
-	current float32
-	status  string
 }
 
 func main() {
