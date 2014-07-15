@@ -18,6 +18,11 @@ type battery struct {
 	status  string  // status of battery
 }
 
+// String forms a pretty string representation of the battery.
+func (b battery) String() string {
+	return fmt.Sprintf("%-12s (%.2f%%)", b.status, 100*b.current)
+}
+
 // readGlob reads the file contents at a glob and returns their contents.
 func readGlob(glob string) ([]string, error) {
 	paths, err := filepath.Glob(glob)
