@@ -1,4 +1,4 @@
-// Package power provides a library to read SysFS info on battery status.
+// Package power provides a library to read SysFS info on battery state.
 package power
 
 import (
@@ -9,17 +9,47 @@ import (
 	"strings"
 )
 
-// Glob for SysFS paths, under which energy_now, energy_full and status files are assumed to exist.
+// Glob for SysFS paths, under which energy_now, energy_full and state files are assumed to exist.
 var path = "/sys/class/power_supply/BAT*/"
 
+const (
+	Empty State = iota
+	Full
+	Charging
+	Unknown
+)
+
+var statees = [...]string{
+	"Empty",
+	"Full",
+	"Charging",
+	"Discharging",
+	"Unknown",
+}
+
+func GetState(s string) (State, error) {
+	for i, name := range statees {
+		if strings.EqualFold(name, s) {
+			return State(i), nil
+		}
+	}
+	return State(0), fmt.Errorf("no state named %v", s)
+}
+
+func (s State) String() string {
+	return statees[s]
+}
+
+type State int
+
 type Battery struct {
-	current float32 // current charge, [0.0, 1.0]
-	status  string  // status of battery
+	Current float32 // current charge, [0.0, 1.0]
+	State   State
 }
 
 // String forms a pretty string representation of the battery.
 func (b Battery) String() string {
-	return fmt.Sprintf("%-12s (%.2f%%)", b.status, 100*b.current)
+	return fmt.Sprintf("%-12s (%.2f%%)", b.State, 100*b.Current)
 }
 
 // readGlob reads the file contents at a glob and returns their contents.
@@ -52,13 +82,13 @@ func parseCharge(p, f string) (float32, error) {
 	return float32(pi) / float32(fi), nil
 }
 
-// Get reads SysFS paths to find status of batteries.
+// Get reads SysFS paths to find state of batteries.
 func Get() ([]Battery, error) {
 	pwr, err := readGlob(path + "energy_now")
 	if err != nil {
 		return []Battery{}, fmt.Errorf("couldn't read SysFS %s/energy_now: %v\n", path, err)
 	}
-	status, err := readGlob(path + "status")
+	state, err := readGlob(path + "status")
 	if err != nil {
 		return []Battery{}, fmt.Errorf("couldn't read SysFS %s/status: %v\n", path, err)
 	}
@@ -66,16 +96,23 @@ func Get() ([]Battery, error) {
 	if err != nil {
 		return []Battery{}, fmt.Errorf("couldn't read SysFS %s/energy_full: %v\n", path, err)
 	}
-	if len(pwr) != len(status) || len(status) != len(full) {
-		return []Battery{}, fmt.Errorf("%d power_now files, %d status files but %d energy_full files; expected all to exist\n", len(pwr), len(status), len(full))
+	if len(pwr) != len(state) || len(state) != len(full) {
+		return []Battery{}, fmt.Errorf("%d power_now files, %d state files but %d energy_full files; expected all to exist\n", len(pwr), len(state), len(full))
 	}
 	result := make([]Battery, len(pwr))
-	for i := range status {
+	for i := range state {
 		c, err := parseCharge(pwr[i], full[i])
 		if err != nil {
 			return []Battery{}, fmt.Errorf("couldn't parse battery charge: %v\n", err)
 		}
-		result[i] = Battery{current: c, status: status[i]}
+		state, err := GetState(state[i])
+		if err != nil {
+			return []Battery{}, err
+		}
+		result[i] = Battery{
+			Current: c,
+			State:   state,
+		}
 	}
 	return result, nil
 }
