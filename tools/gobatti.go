@@ -61,7 +61,17 @@ func (i Icon) getName() string {
 	} else {
 		level = "full"
 	}
-	if state == "discharging" || state == "full" {
+	if state == "unknown" {
+		if level == "full" {
+			// Full batteries sometimes are reported as "unknown", for some reason.
+			state = "full"
+		} else {
+			state = "missing"
+		}
+	}
+	if state == "missing" {
+		return "battery-missing"
+	} else if state == "discharging" || state == "full" {
 		return fmt.Sprintf("battery-%s", level)
 	} else {
 		return fmt.Sprintf("battery-%s-%s", level, state)
@@ -70,26 +80,30 @@ func (i Icon) getName() string {
 
 // update updates the icon with new battery info.
 func (i *Icon) update(battery power.Battery) {
-	// TODO: also set / update tooltip.
 	oldName := i.getName()
 	i.Battery = battery
 	newName := i.getName()
 	if newName != oldName {
 		log.Printf("Changing icon to %q from %q..\n", newName, oldName)
+		// TODO: this should check if the icon name to set actually exists, somehow.
 		i.StatusIcon.SetFromIconName(newName)
 	}
+	i.StatusIcon.SetTooltipText(battery.String())
 }
 
 // poll reads battery info and sleeps for specified duration.
-func poll(d time.Duration, icon []Icon) {
+func poll(d time.Duration, icons []Icon) {
 	for {
+		// TODO: when a battery disappears (e.g. is disconnected), the
+		// icon persists (but the goroutine seems to block, maybe on SysFS
+		// read). Repro and address - icon should go away.
 		bat, err := power.Get()
 		if err != nil {
 			log.Fatalf("failed to get battery info: %v\n", err)
 		}
 		for i, b := range bat {
 			log.Printf("[Battery %d]: %+v\n", i, b)
-			icon[i].update(b)
+			icons[i].update(b)
 		}
 		time.Sleep(d)
 	}
