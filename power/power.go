@@ -19,7 +19,7 @@ const (
 	Unknown
 )
 
-var statees = [...]string{
+var states = [...]string{
 	"Empty",
 	"Full",
 	"Charging",
@@ -28,7 +28,7 @@ var statees = [...]string{
 }
 
 func GetState(s string) (State, error) {
-	for i, name := range statees {
+	for i, name := range states {
 		if strings.EqualFold(name, s) {
 			return State(i), nil
 		}
@@ -37,7 +37,7 @@ func GetState(s string) (State, error) {
 }
 
 func (s State) String() string {
-	return statees[s]
+	return states[s]
 }
 
 type State int
