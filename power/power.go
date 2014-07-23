@@ -2,6 +2,7 @@
 package power
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
@@ -9,8 +10,10 @@ import (
 	"strings"
 )
 
-// Base SysFS path, under which battery info is assumed to exist.
-var BasePath = "/sys/class/power_supply/"
+var (
+	BasePath  = "/sys/class/power_supply/" // base SysFS path, under which battery info is assumed to exist.
+	ErrNoFile = errors.New("no such file or directory")
+)
 
 // Battery represents information about a battery.
 type Battery struct {
@@ -76,7 +79,10 @@ func (s *sysFile) read(path string) (string, error) {
 	path = filepath.Join(path, string(*s))
 	bytes, err := ioutil.ReadFile(path)
 	if err != nil {
-		return "", fmt.Errorf("bad path %s: %v\n", path, err)
+		if strings.HasSuffix(err.Error(), ErrNoFile.Error()) {
+			return "", ErrNoFile
+		}
+		return "", fmt.Errorf("couldn't read from SysFS: %v\n", err)
 	}
 	return strings.TrimRight(string(bytes), "\n"), nil
 }
@@ -111,7 +117,7 @@ func GetNumber(i int) (Battery, error) {
 	si := make(sysInfo)
 	err := si.read(filepath.Join(BasePath, fmt.Sprintf("BAT%d", i)))
 	if err != nil {
-		return Battery{}, fmt.Errorf("couldn't read SysFS: %v\n", err)
+		return Battery{}, err
 	}
 	c, err := parseCharge(si["energy_now"], si["energy_full"])
 	if err != nil {
@@ -142,7 +148,7 @@ func Get() ([]Battery, error) {
 	for i := 0; i < len(glob); i++ {
 		b, err := GetNumber(i)
 		if err != nil {
-			return []Battery{}, fmt.Errorf("failed to get info on battery %d: %v\n", i, err)
+			return []Battery{}, err
 		}
 		result[i] = b
 	}
