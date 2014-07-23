@@ -91,32 +91,37 @@ func (i *Icon) update(battery power.Battery) {
 	i.StatusIcon.SetTooltipText(battery.String())
 }
 
-// poll reads battery info and sleeps for specified duration.
-func poll(d time.Duration, icons []Icon) {
+// poll reads info from battery i and sleeps for specified duration.
+func poll(d time.Duration, i int, icon Icon) {
 	for {
-		// TODO: when a battery disappears (e.g. is disconnected), the
-		// icon persists (but the goroutine seems to block, maybe on SysFS
-		// read). Repro and address - icon should go away.
-		bat, err := power.Get()
+		b, err := power.GetNumber(i)
 		if err != nil {
-			log.Fatalf("failed to get battery info: %v\n", err)
+			if err == power.ErrNoFile {
+				// TODO: possibly give up and drop icon after N tries?
+				b.State = power.Unknown
+			} else {
+				log.Fatalf("failed to get battery info for battery %d: %v\n", i, err)
+			}
 		}
-		for i, b := range bat {
-			log.Printf("[Battery %d]: %+v\n", i, b)
-			icons[i].update(b)
-		}
+		log.Printf("[Battery %d]: %+v\n", i, b)
+		icon.update(b)
 		time.Sleep(d)
 	}
 }
 
 func main() {
 	gtk.Init(&os.Args)
+	// TODO: we currently assume that number of batteries at startup
+	// never can grow (but can shrink).
 	icons := getIcons()
 	d, err := time.ParseDuration("20s")
 	if err != nil {
 		log.Fatalf("bad duration: %v\n", err)
 	}
-	go poll(d, icons)
+	for i := 0; i < len(icons); i++ {
+		go poll(d, i, icons[i])
+	}
+
 	log.Printf("Calling gtk.Main()..")
 	gtk.Main()
 }
