@@ -15,10 +15,27 @@ var (
 	ErrNoFile = errors.New("no such file or directory")
 )
 
+// Charge is the current charge of a battery.
+type Charge float32
+
 // Battery represents information about a battery.
 type Battery struct {
-	Current float32 // current charge, [0.0, 1.0]
-	State   State
+	Charge Charge // current charge, [0.0, 1.0]
+	State  State
+}
+
+func (c Charge) String() string {
+	if c < 0.1 {
+		return "empty"
+	} else if c < 0.3 {
+		return "caution"
+	} else if c < 0.5 {
+		return "low"
+	} else if c < 0.9 {
+		return "good"
+	} else {
+		return "full"
+	}
 }
 
 // sysFile is a SysFS file.
@@ -71,7 +88,28 @@ func (s *State) parse(in string) error {
 
 // String returns a descriptive representation of the battery.
 func (b Battery) String() string {
-	return fmt.Sprintf("%-12s (%.2f%%)", b.State, 100*b.Current)
+	return fmt.Sprintf("%-12s (%.2f%%)", b.State, 100*b.Charge)
+}
+
+// Desc describes the battery, in a way compatible to GTK icon names.
+func (b Battery) Desc() string {
+	state := strings.ToLower(b.State.String())
+	charge := b.Charge.String()
+	if state == "unknown" {
+		if charge == "full" {
+			// Full batteries sometimes are reported as "unknown", for some reason.
+			state = "full"
+		} else {
+			state = "missing"
+		}
+	}
+	if state == "missing" {
+		return "battery-missing"
+	} else if state == "discharging" || state == "full" {
+		return fmt.Sprintf("battery-%s", charge)
+	} else {
+		return fmt.Sprintf("battery-%s-%s", charge, state)
+	}
 }
 
 // read reads the SysFS file.
@@ -100,16 +138,16 @@ func (s sysInfo) read(path string) error {
 }
 
 // parseCharge parses the charge percentage from string values.
-func parseCharge(p, f string) (float32, error) {
+func parseCharge(p, f string) (Charge, error) {
 	pi, err := strconv.ParseInt(p, 10, 0)
 	if err != nil {
-		return 0.0, err
+		return Charge(0.0), err
 	}
 	fi, err := strconv.ParseInt(f, 10, 0)
 	if err != nil {
-		return 0.0, err
+		return Charge(0.0), err
 	}
-	return float32(pi) / float32(fi), nil
+	return Charge(float32(pi) / float32(fi)), nil
 }
 
 // GetNumber reads SysFS to find state of the battery with given index.
@@ -129,8 +167,8 @@ func GetNumber(i int) (Battery, error) {
 		return Battery{}, err
 	}
 	return Battery{
-		Current: c,
-		State:   state,
+		Charge: c,
+		State:  state,
 	}, nil
 }
 
