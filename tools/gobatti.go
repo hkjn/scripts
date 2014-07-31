@@ -2,10 +2,8 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/mattn/go-gtk/gtk"
@@ -40,49 +38,24 @@ func getIcons() []Icon {
 		icon := Icon{
 			Battery: b,
 		}
-		in := icon.getName()
-		icon.StatusIcon = gtk.NewStatusIconFromIconName(in)
-		log.Printf("Created status icon %v with icon name %s\n", icon, in)
+		icon.create()
 		result[i] = icon
 	}
 	return result
 }
 
-// getName builds the GTK icon name.
-func (i Icon) getName() string {
-	state := strings.ToLower(i.Battery.State.String())
-	var level string
-	if i.Battery.Current < 0.1 { // TODO: Map, or something.
-		level = "empty"
-	} else if i.Battery.Current < 0.4 {
-		level = "caution"
-	} else if i.Battery.Current < 0.9 {
-		level = "good"
-	} else {
-		level = "full"
-	}
-	if state == "unknown" {
-		if level == "full" {
-			// Full batteries sometimes are reported as "unknown", for some reason.
-			state = "full"
-		} else {
-			state = "missing"
-		}
-	}
-	if state == "missing" {
-		return "battery-missing"
-	} else if state == "discharging" || state == "full" {
-		return fmt.Sprintf("battery-%s", level)
-	} else {
-		return fmt.Sprintf("battery-%s-%s", level, state)
-	}
+func (i *Icon) create() {
+	in := i.Battery.Desc()
+	i.StatusIcon = gtk.NewStatusIconFromIconName(in)
+	i.StatusIcon.SetTooltipText(i.Battery.String())
+	log.Printf("Created status icon %v with icon name %s\n", i, in)
 }
 
 // update updates the icon with new battery info.
 func (i *Icon) update(battery power.Battery) {
-	oldName := i.getName()
+	oldName := i.Battery.Desc()
 	i.Battery = battery
-	newName := i.getName()
+	newName := i.Battery.Desc()
 	if newName != oldName {
 		log.Printf("Changing icon to %q from %q..\n", newName, oldName)
 		// TODO: this should check if the icon name to set actually exists, somehow.
@@ -97,6 +70,8 @@ func poll(d time.Duration, i int, icon Icon) {
 		b, err := power.GetNumber(i)
 		if err != nil {
 			if err == power.ErrNoFile {
+				// No SysFS file; set to unknown and assume that battery
+				// returns eventually.
 				// TODO: possibly give up and drop icon after N tries?
 				b.State = power.Unknown
 			} else {

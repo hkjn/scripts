@@ -95,14 +95,6 @@ func (b Battery) String() string {
 func (b Battery) Desc() string {
 	state := strings.ToLower(b.State.String())
 	charge := b.Charge.String()
-	if state == "unknown" {
-		if charge == "full" {
-			// Full batteries sometimes are reported as "unknown", for some reason.
-			state = "full"
-		} else {
-			state = "missing"
-		}
-	}
 	if state == "missing" {
 		return "battery-missing"
 	} else if state == "discharging" || state == "full" {
@@ -166,9 +158,14 @@ func GetNumber(i int) (Battery, error) {
 	if err != nil {
 		return Battery{}, err
 	}
+	if state == Unknown && c.String() == "full" {
+		// Full batteries sometimes are reported as "unknown", for some
+		// reason.
+		state = Full
+	}
 	return Battery{
-		Charge: c,
 		State:  state,
+		Charge: c,
 	}, nil
 }
 
