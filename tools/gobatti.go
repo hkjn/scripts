@@ -73,6 +73,7 @@ func poll(d time.Duration, i int, icon Icon) {
 				// No SysFS file; set to unknown and assume that battery
 				// returns eventually.
 				// TODO: possibly give up and drop icon after N tries?
+				log.Printf("no sysfs file for battery %d, setting state to Unknown\n", i)
 				b.State = power.Unknown
 			} else {
 				log.Fatalf("failed to get battery info for battery %d: %v\n", i, err)

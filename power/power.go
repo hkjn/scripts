@@ -93,14 +93,11 @@ func (b Battery) String() string {
 
 // Desc describes the battery, in a way compatible to GTK icon names.
 func (b Battery) Desc() string {
-	state := strings.ToLower(b.State.String())
 	charge := b.Charge.String()
-	if state == "missing" {
-		return "battery-missing"
-	} else if state == "discharging" || state == "full" {
-		return fmt.Sprintf("battery-%s", charge)
+	if b.State == Charging {
+		return fmt.Sprintf("battery-%s-%s", charge, strings.ToLower(b.State.String()))
 	} else {
-		return fmt.Sprintf("battery-%s-%s", charge, state)
+		return fmt.Sprintf("battery-%s", charge)
 	}
 }
 
