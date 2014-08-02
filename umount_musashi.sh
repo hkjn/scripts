@@ -7,7 +7,7 @@
 
 set -e
 
-umount /media/musashi
-cryptsetup remove musashi_clear
+sudo umount /media/musashi
+sudo cryptsetup remove musashi_clear
 echo "Unmounted /media/musashi"
 
