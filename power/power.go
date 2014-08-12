@@ -1,4 +1,7 @@
 // Package power provides a library to read SysFS info on battery state.
+//
+// Icons are taken from the current GTK theme, typically stored at
+// /usr/share/icons/gnome/32x32/status or similar.
 package power
 
 import (
@@ -11,8 +14,9 @@ import (
 )
 
 var (
-	BasePath  = "/sys/class/power_supply/" // base SysFS path, under which battery info is assumed to exist.
-	ErrNoFile = errors.New("no such file or directory")
+	BasePath    = "/sys/class/power_supply/" // base SysFS path, under which battery info is assumed to exist.
+	ErrNoFile   = errors.New("no such file or directory")
+	ErrNoDevice = errors.New("no such device")
 )
 
 // Charge is the current charge of a battery.
@@ -91,10 +95,13 @@ func (b Battery) String() string {
 	return fmt.Sprintf("%-12s (%.2f%%)", b.State, 100*b.Charge)
 }
 
-// Desc describes the battery, in a way compatible to GTK icon names.
+// Desc describes the battery, in a way compatible with GTK icon names.
 func (b Battery) Desc() string {
 	charge := b.Charge.String()
 	if b.State == Charging {
+		if charge == "empty" {
+			charge = "low" // there is no battery-empty-charging.
+		}
 		return fmt.Sprintf("battery-%s-%s", charge, strings.ToLower(b.State.String()))
 	} else {
 		return fmt.Sprintf("battery-%s", charge)
@@ -108,6 +115,9 @@ func (s *sysFile) read(path string) (string, error) {
 	if err != nil {
 		if strings.HasSuffix(err.Error(), ErrNoFile.Error()) {
 			return "", ErrNoFile
+		}
+		if strings.HasSuffix(err.Error(), ErrNoDevice.Error()) {
+			return "", ErrNoDevice
 		}
 		return "", fmt.Errorf("couldn't read from SysFS: %v\n", err)
 	}

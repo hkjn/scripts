@@ -69,9 +69,11 @@ func poll(d time.Duration, i int, icon Icon) {
 	for {
 		b, err := power.GetNumber(i)
 		if err != nil {
-			if err == power.ErrNoFile {
+			if err == power.ErrNoFile || err == power.ErrNoDevice {
 				// No SysFS file; set to unknown and assume that battery
-				// returns eventually.
+				// returns eventually. This happens i.e. if battery is
+				// physically disconnected, or just after resuming from being
+				// suspended.
 				// TODO: possibly give up and drop icon after N tries?
 				log.Printf("no sysfs file for battery %d, setting state to Unknown\n", i)
 				b.State = power.Unknown
