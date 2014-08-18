@@ -3,10 +3,11 @@
 package main
 
 import (
-	"brightness"
 	"log"
 	"os"
 	"strconv"
+
+	"github.com/hkjn/brightness"
 )
 
 func main() {

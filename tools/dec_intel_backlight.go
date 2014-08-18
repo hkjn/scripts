@@ -2,7 +2,7 @@
 
 package main
 
-import "brightness"
+import "github.com/hkjn/brightness"
 
 func main() {
 	brightness.Dec()
