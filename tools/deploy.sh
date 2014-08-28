@@ -10,3 +10,7 @@ sudo mv -v {inc,dec}_intel_backlight /usr/bin/
 # Deploys power.go.
 go build check_battery.go
 sudo mv -v check_battery /usr/bin/
+
+# Deploys gobatti.go.
+go build gobatti.go
+sudo mv -v gobatti /usr/bin/
