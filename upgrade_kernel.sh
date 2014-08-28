@@ -8,7 +8,7 @@ set -e
 # This script requires root permissions.
 
 LIBS=$(ls -d /lib/modules/?.??.?-?-ARCH)
-VERSION=$(echo $LIBS | cut -d '/' -f4)
+VERSION=$(echo $LIBS | cut -d '/' -f4) # TODO: this will not do the right thing if there's several matching LIBS, though that shouldn't normally happen.
 BACKUP=/root/kernel-backups/${VERSION}-$(date +%Y%m%d)
 BOOT=/boot/EFI/arch
 KERNEL=${BOOT}/vmlinuz-arch
@@ -36,7 +36,7 @@ sudo cp -v ${BOOT}/initramfs-arch-fallback.img ${BOOT}/initramfs-arch-fallback-s
 
 # At this point we can upgrade. (Upgrading also runs mkinitcpio -p linux; regenerating /boot/initramfs-linux{-fallback}.img).
 echo 'Upgrading system..'
-sudo pacman -Syu
+sudo pacman -Syyu
 
 echo "Rotating back old ${LIBS}-stable to ${LIBS}.."
 sudo mv ${LIBS}-stable ${LIBS}
