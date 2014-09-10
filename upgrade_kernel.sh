@@ -7,8 +7,8 @@ set -e
 # Backs up current kernel and upgrades to new one.
 # This script requires root permissions.
 
-LIBS=$(ls -d /lib/modules/?.??.?-?-ARCH)
-VERSION=$(echo $LIBS | cut -d '/' -f4) # TODO: this will not do the right thing if there's several matching LIBS, though that shouldn't normally happen.
+LIBS=$(ls -d /lib/modules/?.??.?-?-ARCH | tail -n 1)
+VERSION=$(echo $LIBS | cut -d '/' -f4)
 BACKUP=/root/kernel-backups/${VERSION}-$(date +%Y%m%d)
 BOOT=/boot/EFI/arch
 KERNEL=${BOOT}/vmlinuz-arch
@@ -17,7 +17,7 @@ KERNEL=${BOOT}/vmlinuz-arch
 # NOTE: No kernel src seems to be in /usr/src on this system.
 # cp -r /usr/src/linux-${VERSION} /usr/src/linux-2.6.28-ARCH-old
 
-echo "Backing up previous kernel modules to ${BACKUP}/ and ${LIBS}-stable/.."
+echo "Backing up previous kernel modules ${LIBS} to ${BACKUP}/ and ${LIBS}-stable/.."
 sudo cp -r ${LIBS} ${BACKUP}/
 sudo cp -r ${LIBS} ${LIBS}-stable/
 
@@ -31,8 +31,6 @@ sudo cp -v ${BOOT}/initramfs-arch.img ${BACKUP}/
 sudo cp -v ${BOOT}/initramfs-arch.img ${BOOT}/initramfs-arch-stable.img
 sudo cp -v ${BOOT}/initramfs-arch-fallback.img ${BACKUP}/
 sudo cp -v ${BOOT}/initramfs-arch-fallback.img ${BOOT}/initramfs-arch-fallback-stable.img
-
-# TODO: Make sure rEFInd has entry for "last kernel" in refind.conf.
 
 # At this point we can upgrade. (Upgrading also runs mkinitcpio -p linux; regenerating /boot/initramfs-linux{-fallback}.img).
 echo 'Upgrading system..'
