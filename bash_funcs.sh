@@ -2,7 +2,7 @@
 
 # Useful bash functions.
 
-# Show git branch in shell info
+# Show git branch.
 git_branch() {
   git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
 }
@@ -52,3 +52,20 @@ timer() {
   echo "timer set for $N"
   sleep $N && zenity --info --title="Time's Up" --text="${*:-BING}"
 }
+
+# Log all commands typed in host-specific file.
+function command_log () {
+  # Save the rv
+  local -i rv="$?"
+  # Get the last line local
+  last_line="${BASH_COMMAND}"
+  local logfile="${HOME}/.shell_logs/${HOSTNAME}"
+  local current_ts="$(date '+%Y%m%d %H:%M:%S')"
+  if [ "$last_line" != '' ]; then
+    echo "${current_ts} ${LOGNAME} Status[${rv}] SPID[${$}] PWD[${PWD}]" \
+      \'${last_line#        }\' >> "${logfile}"
+  fi
+}
+
+trap command_log DEBUG
+alias shlogs="less ${HOME}/.shell_logs/${HOSTNAME}"
