@@ -2,11 +2,6 @@
 
 # Useful bash functions.
 
-# Show git branch.
-git_branch() {
-  git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
-}
-
 # Starts ssh-agent and stores the SSH_AUTH_SOCK / SSH_AGENT_PID for
 # later reuse.
 start-ssh-agent() {
@@ -67,5 +62,9 @@ function command_log () {
   fi
 }
 
+# Trap + log commands.
 trap command_log DEBUG
+
 alias shlogs="less ${HOME}/.shell_logs/${HOSTNAME}"
+
+load-ssh-key
