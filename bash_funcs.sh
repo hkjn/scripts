@@ -49,7 +49,7 @@ timer() {
 }
 
 # Log all commands typed in host-specific file.
-function command_log () {
+command_log () {
   # Save the rv
   local -i rv="$?"
   # Get the last line local
@@ -68,3 +68,4 @@ trap command_log DEBUG
 alias shlogs="less ${HOME}/.shell_logs/${HOSTNAME}"
 
 load-ssh-key
+
