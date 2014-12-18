@@ -2,6 +2,8 @@
 #
 # Checks if any files about to be committed need gofmt'ing.
 
+# TODO: create go_git_hooks.sh, defining all functions needed.
+
 echo "Checking if any files need gofmt.." >&2
 IFS=$'\n'
 if git rev-parse HEAD >/dev/null 2>&1; then

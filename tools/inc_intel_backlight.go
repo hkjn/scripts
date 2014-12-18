@@ -2,7 +2,7 @@
 
 package main
 
-import "github.com/hkjn/brightness"
+import "hkjn.me/brightness"
 
 func main() {
 	brightness.Inc()
