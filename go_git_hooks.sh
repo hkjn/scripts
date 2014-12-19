@@ -43,7 +43,7 @@ function run_go_tests() {
 
 function update_bindata {
 	if [ -d "bindata/" ]; then
-		echo "Regenerating bindata.." >&2
+		echo "Checking if bindata needs regenerating.." >&2
 		go-bindata -pkg="bindata" -o bindata/bin.go tmpl/
 		# TODO: since go-bindata doesn't properly format its output, we need
 		# to do it ourselves.
@@ -56,7 +56,7 @@ function update_bindata {
 
 function update_godep {
 	if [ -d "Godeps/" ]; then
-		echo "Updating godeps.." >&2
+		echo "Checking for godeps updates.." >&2
 		godep update ...
 		dirty=$(prevent_dirty_tree Godeps/ "commit dependency changes first")
 		return ${dirty}
