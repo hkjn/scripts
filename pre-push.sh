@@ -9,4 +9,3 @@ run_go_tests
 update_bindata
 update_godep
 needs_gofmt
-echo "Pass." >&2
