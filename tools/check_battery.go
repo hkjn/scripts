@@ -3,7 +3,7 @@ package main
 
 import (
 	"log"
-	"power"
+	"hkjn.me/power"
 )
 
 func main() {

@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/mattn/go-gtk/gtk"
-	"power"
+	"hkjn.me/power"
 )
 
 var levels = []string{
