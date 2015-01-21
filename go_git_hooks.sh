@@ -1,8 +1,7 @@
 # Golang git hooks, useful in constructing e.g. pre-commit, pre-push.
 
 # Fail if any command fails (returns != 0).
-set -e
-set -o pipefail
+set -eo pipefail
 
 function needs_gofmt() {
 	echo "Checking if any files need gofmt.." >&2
