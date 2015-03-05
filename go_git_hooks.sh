@@ -11,13 +11,17 @@ function needs_gofmt() {
 	else
 		FILES=$(git ls-files -c | grep -e '\.go$');
 	fi
+	failed=0
 	for file in $FILES; do
 		badfile="$(gofmt -l "$file")"
 		if test -n "$badfile" ; then
 			echo "git pre-commit check failed: file needs gofmt: $file" >&2
-			return 1
+			failed=1
 		fi
 	done
+	if [ $failed -ne 0 ]; then
+		return 1
+	fi
 	return 0
 }
 
@@ -34,9 +38,35 @@ function prevent_dirty_tree() {
 	return 0
 }
 
+function prevent_hacks() {
+	echo "Checking for strings indicating hacks.." >&2
+	if [ git rev-parse HEAD >/dev/null 2>&1 ]; then
+		FILES=$(git diff --cached --name-only | grep -e '\.go$');
+	else
+		FILES=$(git ls-files -c | grep -e '\.go$');
+	fi
+	failed=0
+	if grep -ir "FIXME" $FILES; then
+		echo "Please remove offending string." >&2
+		failed=1
+	fi
+	if grep -ir "DO NOT SUBMIT" $FILES; then
+		echo "Please remove offending string." >&2
+		failed=1
+	fi
+	if [ $failed -ne 0 ]; then
+		return 1
+	fi
+	return 0
+}
+
 function run_go_tests() {
 	echo "Running all Go tests.." >&2
-	passed=$(goapp test ./... >&2)
+	if which goapp 2>/dev/null; then
+		passed=$(goapp test ./... >&2)
+	else
+		passed=$(go test ./... >&2)
+	fi
 	return ${passed}
 }
 

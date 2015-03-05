@@ -9,3 +9,4 @@ run_go_tests
 update_bindata
 update_godep
 needs_gofmt
+prevent_hacks
