@@ -13,6 +13,11 @@ function needs_gofmt() {
 	fi
 	failed=0
 	for file in $FILES; do
+		if [ ! -e "$file" ]; then
+			# If a cached file doesn't exist it must be about to be deleted
+			# in this commit, so no need to check it.
+			continue
+		fi
 		badfile="$(gofmt -l "$file")"
 		if test -n "$badfile" ; then
 			echo "git pre-commit check failed: file needs gofmt: $file" >&2
