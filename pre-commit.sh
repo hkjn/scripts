@@ -4,4 +4,4 @@
 
 source ~/src/go_git_hooks.sh || exit
 
-needs_gofmt
+needs_gofmt || exit

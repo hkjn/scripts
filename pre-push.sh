@@ -5,8 +5,8 @@
 
 source ~/src/go_git_hooks.sh || exit
 
-run_go_tests
-update_bindata
-update_godep
-needs_gofmt
-prevent_hacks
+run_go_tests || exit
+update_bindata || exit
+update_godep || exit
+needs_gofmt || exit
+prevent_hacks || exit

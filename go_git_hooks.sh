@@ -1,8 +1,5 @@
 # Golang git hooks, useful in constructing e.g. pre-commit, pre-push.
 
-# Fail if any command fails (returns != 0).
-set -eo pipefail
-
 function needs_gofmt() {
 	echo "Checking if any files need gofmt.." >&2
 	IFS=$'\n'
@@ -46,9 +43,9 @@ function prevent_dirty_tree() {
 function prevent_hacks() {
 	echo "Checking for strings indicating hacks.." >&2
 	if [ git rev-parse HEAD >/dev/null 2>&1 ]; then
-		FILES=$(git diff --cached --name-only | grep -e '\.go$');
+		FILES=$(git diff --cached --name-only)
 	else
-		FILES=$(git ls-files -c | grep -e '\.go$');
+		FILES=$(git ls-files -c)
 	fi
 	failed=0
 	if grep -ir "FIXME" $FILES; then
@@ -67,12 +64,19 @@ function prevent_hacks() {
 
 function run_go_tests() {
 	echo "Running all Go tests.." >&2
+	local testBinary=go
 	if which goapp 2>/dev/null; then
-		passed=$(goapp test ./... >&2)
-	else
-		passed=$(go test ./... >&2)
+		testBinary=goapp
 	fi
-	return ${passed}
+	output=$($testBinary test ./... 2>&1)
+	if [ $? -eq 0 ]; then
+		return 0
+	fi
+	if echo "$output" | grep "matched no packages" >/dev/null; then
+		# Special case for "there's no packages in this repo", which is fine.
+		return 0
+	fi
+	return 1
 }
 
 function update_bindata {
