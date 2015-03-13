@@ -11,7 +11,7 @@ LIBS=$(ls -d /lib/modules/?.??.?-?-ARCH | tail -n 1)
 VERSION=$(echo $LIBS | cut -d '/' -f4)
 BACKUP=/root/kernel-backups/${VERSION}-$(date +%Y%m%d)
 BOOT=/boot/EFI/arch
-KERNEL=${BOOT}/vmlinuz-arch
+KERNEL=${BOOT}/vmlinuz-arch-crypto
 
 # Back up kernel src.
 # NOTE: No kernel src seems to be in /usr/src on this system.
@@ -27,10 +27,10 @@ sudo cp -v ${KERNEL}.efi ${KERNEL}-stable.efi
 
 # Back up initial ram image and fallback (initrd).
 echo 'Backing up + rotating previous initrd (and fallback) image..'
-sudo cp -v ${BOOT}/initramfs-arch.img ${BACKUP}/
-sudo cp -v ${BOOT}/initramfs-arch.img ${BOOT}/initramfs-arch-stable.img
-sudo cp -v ${BOOT}/initramfs-arch-fallback.img ${BACKUP}/
-sudo cp -v ${BOOT}/initramfs-arch-fallback.img ${BOOT}/initramfs-arch-fallback-stable.img
+sudo cp -v ${BOOT}/initramfs-arch-crypto.img ${BACKUP}/
+sudo cp -v ${BOOT}/initramfs-arch-crypto.img ${BOOT}/initramfs-arch-crypto-stable.img
+sudo cp -v ${BOOT}/initramfs-arch-crypto-fallback.img ${BACKUP}/
+sudo cp -v ${BOOT}/initramfs-arch-crypto-fallback.img ${BOOT}/initramfs-arch-crypto-fallback-stable.img
 
 # At this point we can upgrade. (Upgrading also runs mkinitcpio -p linux; regenerating /boot/initramfs-linux{-fallback}.img).
 echo 'Upgrading system..'
@@ -45,7 +45,7 @@ echo "Copying in new kernel.."
 sudo mv -v /boot/vmlinuz-linux ${KERNEL}.efi
 
 echo "Copying in initial ram images.."
-sudo mv -v /boot/initramfs-linux.img ${BOOT}/initramfs-arch.img
-sudo mv -v /boot/initramfs-linux-fallback.img ${BOOT}/initramfs-arch-fallback.img
+sudo mv -v /boot/initramfs-linux.img ${BOOT}/initramfs-arch-crypto.img
+sudo mv -v /boot/initramfs-linux-fallback.img ${BOOT}/initramfs-arch-crypto-fallback.img
 
 
