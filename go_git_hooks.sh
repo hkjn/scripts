@@ -76,6 +76,7 @@ function run_go_tests() {
 		# Special case for "there's no packages in this repo", which is fine.
 		return 0
 	fi
+	echo "Go tests failed:\n$output" >&2
 	return 1
 }
 
