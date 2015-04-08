@@ -48,7 +48,7 @@ function prevent_hacks() {
 		FILES=$(git ls-files -c)
 	fi
 	failed=0
-	if grep -ir "FIXME" $FILES; then
+	if grep -ir "FIXME" $FILES 2>/dev/null; then
 		echo "Please remove offending string." >&2
 		failed=1
 	fi
