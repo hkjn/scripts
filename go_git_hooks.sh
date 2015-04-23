@@ -65,7 +65,7 @@ function prevent_hacks() {
 function run_go_tests() {
 	echo "Running all Go tests.." >&2
 	local testBinary=go
-	if which goapp 2>/dev/null; then
+	if which goapp 1>/dev/null; then
 		testBinary=goapp
 	fi
 	output=$($testBinary test ./... 2>&1)
