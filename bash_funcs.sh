@@ -11,30 +11,40 @@ start-ssh-agent() {
 
 # Loads SSH identities (starting ssh-agent if necessary), recovering
 # from stale sockets.
-load-ssh-key() {
+
+# TODO(henrik): Decrypt .ssh/*.pem.gpg files, load into SSH
+# agent (ideally with no file touching disk at any time), make sure
+# no plaintext files exist.
+function load-ssh-key() {
   # SSH-agent setup adapted from
   # http://superuser.com/questions/141044/sharing-the-same-ssh-agent-among-multiple-login-sessions.
 
   # Time a key should be kept, in seconds.
   key_ttl=$((3600*8))
-  if [ -f ~/.ssh-agent.conf ] ; then
-    # Found previous config, try loading it.
-    source ~/.ssh-agent.conf > /dev/null
-  	# List all identities the SSH agent knows about.
-    ssh-add -l > /dev/null 2>&1
-    stat=$?
-    # $?=0 means the socket is there and it has a key
-    if [ $stat -eq 1 ] ; then
-  		# $?=1 means the socket is there but contains no key
-      ssh-add -t $key_ttl > /dev/null 2>&1
-    elif [ $stat -eq 2 ] ; then
-  		# $?=2 means the socket is not there or broken
-      rm -f $SSH_AUTH_SOCK
-      start-ssh-agent
-      ssh-add -t $key_ttl > /dev/null 2>&1
-    fi
-  else
-  	# No existing config.
+  if [ ! -f ~/.ssh-agent.conf ] ; then
+    # No existing config, start agent.
+    start-ssh-agent
+    ssh-add -t $key_ttl > /dev/null 2>&1
+    return 0
+  fi
+  # Found previous config, try loading it. This sources in the path to
+  # the authentication socket (SSH_AUTH_SOCK, used below).
+  source ~/.ssh-agent.conf > /dev/null
+  # List all identities the SSH agent knows about.
+
+	# TODO(henrik): Maybe check if output here contains all entries in a
+	# known list, and if not, add the missing keys?
+  ssh-add -l > /dev/null 2>&1
+  stat=$?
+  # $?=0 means the socket is there and it has a key.
+  if [ $stat -eq 0 ]; then
+    return 0
+  elif [ $stat -eq 1 ] ; then
+    # $?=1 means the socket is there but contains no key.
+    ssh-add -t $key_ttl > /dev/null 2>&1
+  elif [ $stat -eq 2 ] ; then
+    # $?=2 means the socket is not there or broken
+    rm -f $SSH_AUTH_SOCK
     start-ssh-agent
     ssh-add -t $key_ttl > /dev/null 2>&1
   fi
