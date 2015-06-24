@@ -1,5 +1,15 @@
 # Golang git hooks, useful in constructing e.g. pre-commit, pre-push.
 
+function has_conflicts() {
+		conflicts=$(git diff --cached --name-only -S'<<<<<< HEAD')
+		if [ -n "$conflicts" ]; then
+				echo "Unresolved merge conflicts in this commit:" >&2
+				echo $conflicts >&2
+				return 1
+		fi
+		return 0
+fi
+
 function needs_gofmt() {
 	echo "Checking if any files need gofmt.." >&2
 	IFS=$'\n'
