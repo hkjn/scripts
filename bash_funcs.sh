@@ -4,7 +4,7 @@
 
 # Starts ssh-agent and stores the SSH_AUTH_SOCK / SSH_AGENT_PID for
 # later reuse.
-start-ssh-agent() {
+function start-ssh-agent() {
   ssh-agent -s > ~/.ssh-agent.conf 2> /dev/null
   source ~/.ssh-agent.conf > /dev/null
 }
@@ -51,7 +51,7 @@ function load-ssh-key() {
 }
 
 # Timed GTK dialogs; use like "timer 25m your note here".
-timer() {
+function timer() {
   local N=$1; shift
 
   echo "timer set for $N"
@@ -59,7 +59,7 @@ timer() {
 }
 
 # Log all commands typed in host-specific file.
-command_log () {
+function command_log () {
   # Save the rv
   local -i rv="$?"
   # Get the last line local
@@ -72,10 +72,25 @@ command_log () {
   fi
 }
 
+# mw merges the current branch into specified branch.
+function mw() {
+		if [ "$#" -ne 1 ]; then
+				echo "Usage: mw otherBranch" >&2
+				return 1
+		fi
+		current="$(gitBranch)"
+		other="$1"
+		if [ ! "$current" ]; then
+				echo "mw: Not in a git repo." >&2
+				return 2
+		fi
+		git checkout "$other"
+		git merge "$current"
+		return 0
+}
+
 # Trap + log commands.
 trap command_log DEBUG
-
-alias shlogs="less ${HOME}/.shell_logs/${HOSTNAME}"
 
 load-ssh-key
 
