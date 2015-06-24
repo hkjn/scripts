@@ -5,6 +5,7 @@
 
 source ~/src/go_git_hooks.sh || exit
 
+has_conflicts || exit
 run_go_tests || exit
 update_bindata || exit
 update_godep || exit
