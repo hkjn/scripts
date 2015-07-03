@@ -84,8 +84,13 @@ function mw() {
 				echo "mw: Not in a git repo." >&2
 				return 2
 		fi
+		git pull || return 3
+		git push || return 4
 		git checkout "$other"
-		git merge "$current"
+		git pull || return 5
+		git merge --no-ff "$current"
+		git push || return 6
+		git checkout "$current"
 		return 0
 }
 
