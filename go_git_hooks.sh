@@ -91,6 +91,20 @@ function run_go_tests() {
 	return 1
 }
 
+function run_go_vet() {
+	echo "Running Go vet command.." >&2
+	output=$(go vet ./... 2>&1)
+	if [ $? -eq 0 ]; then
+		return 0
+	fi
+	if echo "$output" | grep "matched no packages" >/dev/null; then
+		# Special case for "there's no packages in this repo", which is fine.
+		return 0
+	fi
+	echo "Go vet failed:\n$output" >&2
+	return 1
+}
+
 function update_bindata {
 	if [ -d "bindata/" ]; then
 		echo "Checking if bindata needs regenerating.." >&2
