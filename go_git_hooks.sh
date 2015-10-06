@@ -79,7 +79,11 @@ function run_go_tests() {
 	if which goapp 1>/dev/null; then
 		testBinary=goapp
 	fi
-	output=$($testBinary test ./... 2>&1)
+	targets=$(go list ./... 2>/dev/null | grep -v /vendor/)
+	if [ ! "$targets" ]; then
+		return 0 # Nothing to test
+	fi
+	output=$($testBinary test $targets 2>&1)
 	if [ $? -eq 0 ]; then
 		return 0
 	fi
