@@ -75,15 +75,12 @@ function prevent_hacks() {
 
 function run_go_tests() {
 	echo "Running all Go tests.." >&2
-	local testBinary=go
-	if which goapp 1>/dev/null; then
-		testBinary=goapp
-	fi
 	targets=$(go list ./... 2>/dev/null | grep -v /vendor/)
 	if [ ! "$targets" ]; then
 		return 0 # Nothing to test
 	fi
-	output=$($testBinary test $targets 2>&1)
+
+	output=$(go test $targets 2>&1)
 	if [ $? -eq 0 ]; then
 		return 0
 	fi
@@ -91,7 +88,8 @@ function run_go_tests() {
 		# Special case for "there's no packages in this repo", which is fine.
 		return 0
 	fi
-	echo "Go tests failed:\n$output" >&2
+	echo "Go tests failed:" >&2
+	echo "$output" >&2
 	return 1
 }
 
