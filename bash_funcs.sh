@@ -64,6 +64,7 @@ function command_log () {
   local -i rv="$?"
   # Get the last line local
   last_line="${BASH_COMMAND}"
+  mkdir -p "$HOME/.shell_logs"
   local logfile="${HOME}/.shell_logs/${HOSTNAME}"
   local current_ts="$(date '+%Y%m%d %H:%M:%S')"
   if [ "$last_line" != '' ]; then
@@ -94,8 +95,18 @@ function mw() {
 		return 0
 }
 
+# load-docker-env loads environment variables for OS X Docker machine.
+function load-docker-env() {
+	[ $(uname) == "Darwin" ] && eval $(docker-machine env default)
+}
+
+# start-docker-vm starts OS X Docker machine.
+function start-docker-vm() {
+	[ $(uname) == "Darwin" ] && echo $(docker-machine start default)
+}
+
 # Trap + log commands.
 trap command_log DEBUG
 
+# Load SSH keys in new session.
 load-ssh-key
-
