@@ -5,5 +5,6 @@
 set -eo pipefail
 
 cd .git/hooks/
-ln -vs ~/src/pre-commit.sh pre-commit
-ln -vs ~/src/pre-push.sh pre-push
+SCRIPTS=$HOME/github.com/hkjn/scripts
+ln -vs $SCRIPTS/pre-commit.sh pre-commit
+ln -vs $SCRIPTS/pre-push.sh pre-push
