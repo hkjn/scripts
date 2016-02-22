@@ -2,6 +2,6 @@
 #
 # Git precommit scripts.
 
-source ~/src/go_git_hooks.sh || exit
+source "$GOPATH/src/hkjn.me/scripts/go_git_hooks.sh" || exit
 
 needs_gofmt || exit

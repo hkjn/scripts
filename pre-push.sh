@@ -3,7 +3,7 @@
 # Git prepush scripts.
 #
 
-source ~/src/go_git_hooks.sh || exit
+source "$GOPATH/src/hkjn.me/scripts/go_git_hooks.sh" || exit
 
 has_conflicts || exit
 run_go_tests || exit
