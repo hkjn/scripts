@@ -80,7 +80,7 @@ function run_go_tests() {
 		return 0 # Nothing to test
 	fi
 
-	output=$(go test $targets 2>&1)
+	output=$(go test -race $targets 2>&1)
 	if [ $? -eq 0 ]; then
 		return 0
 	fi
