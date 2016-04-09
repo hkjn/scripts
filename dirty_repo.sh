@@ -38,9 +38,11 @@ check() {
 
 		if ! msg="$(git-wtf.rb 2>&1)"; then
 			error "Dirty tree in '$d' repo:\n'$msg'"
+			dirty=$(($dirty + 1))
 		fi
 		cd ..
 	done
+	[ $dirty -eq 0 ] || error "There were $dirty dirty repos."
 	return $dirty
 }
 which ruby 1>/dev/null || fatal "No 'ruby' found on PATH."
