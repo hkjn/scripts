@@ -357,7 +357,7 @@ end
 
 modified = show_dirty && `git ls-files -m` != ""
 uncommitted = show_dirty &&  `git diff-index --cached HEAD` != ""
-
+untracked = show_dirty && `git ls-files . --exclude-standard --others` != ""
 if $key
   puts
   puts KEY
@@ -367,5 +367,6 @@ puts if modified || uncommitted
 
 abort "#{red "NOTE"}: staging area contains staged but uncommitted files." if uncommitted
 abort "#{red "NOTE"}: working directory contains modified files." if modified
+abort "#{red "NOTE"}: working directory contains untracked files." if untracked
 
 exit 0
