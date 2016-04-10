@@ -9,7 +9,6 @@
 # avoid wrapping it in shell call here (and having dependency on
 # ruby).
 # TODO(hkjn): Also look for LICENSE, README.md?
-# TODO(hkjn): Also check if everything is pushed up: git log origin/master..master
 #
 
 BASENAME="hkjn.me"
