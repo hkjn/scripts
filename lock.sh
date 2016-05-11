@@ -18,6 +18,8 @@ load "logging.sh"
 [ "$#" -eq 1 ] || fatal "Usage: $0 [cleartext file under clear/]"
 
 # TODO(hkjn): Refactor out crypt.sh lib.
+# TODO(hkjn): Add func for checking number of clear/ files.
+# TODO(hkjn): Add func for decrypting string in clear/ file without the plaintext bytes hitting disk.
 BASE="$GOPATH/src/bitbucket.org/hkjn/passwords"
 CLEAR="$BASE/clear/$1"
 CRYPT="$BASE/$1.pgp"
