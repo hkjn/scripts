@@ -2,8 +2,17 @@
 
 set -euo pipefail
 
-docker rm -f musashi-fileserver && echo "Removed musashi-fileserver container"
-docker run --name musashi-fileserver -d -it -v "/media/musashi:/var/www" -p 8080:8080 hkjn/fileserver
-docker rm -f staging-fileserver && echo "Removed staging-fileserver container"
-docker run --name staging-fileserver -d -it -v "$HOME/staging:/var/www" -p 8081:8080 hkjn/fileserver
+start() {
+	[ -d $2 ] || {
+		echo "No such directory: '$2'"
+		return
+	}
+	docker rm -f $1-fileserver && echo "Removed $1-fileserver container"
+	docker run --name $1-fileserver -d -v "$2:/var/www" -p $3:8080 hkjn/fileserver
+	echo "$1-fileserver is running at $3, serving directory '$2'"
+}
+start musashi /media/musashi 8080
+start staging $HOME/staging 8081
+start usb /run/media/zero/USB20FD 8082
+
 echo "Started media fileserver containers."
