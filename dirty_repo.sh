@@ -10,15 +10,13 @@
 # ruby).
 # TODO(hkjn): Also look for LICENSE, README.md?
 #
-
-BASENAME="hkjn.me"
-LIBDIR="lib"
+set -euo pipefail
 
 load() {
-	set -uo pipefail
+	local ns="hkjn.me"
 	local p="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-	while [ $(basename $p) != "$BASENAME" ] && [ $p != "/" ]; do p="${p/\/$(basename $p)/}"; done
-	source "$p/$LIBDIR/$1" || { echo "FATAL: Couldn't load $p/$LIBDIR/$1." >&2; exit 1; }
+	while [ "$p" != "" ] && [ $(basename $p) != "$ns" ]; do p="${p/\/$(basename $p)/}"; done
+	source "$p/lib/$1" 2>/dev/null || { echo "[$0] FATAL: Couldn't find $ns/lib/$1." >&2; exit 1; }
 	export BASE="$p"
 }
 load "logging.sh"
