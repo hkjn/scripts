@@ -54,6 +54,8 @@ function prevent_dirty_tree() {
 function prevent_hacks() {
 	echo "Checking for strings indicating hacks.." >&2
 	if [ git rev-parse HEAD >/dev/null 2>&1 ]; then
+		# TODO(hkjn): This also can return files that are removed in the
+		# working tree, which we should not be trying to grep through..
 		FILES=$(git diff --cached --name-only)
 	else
 		FILES=$(git ls-files -c)
