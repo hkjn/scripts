@@ -1,8 +1,11 @@
 #!/bin/bash
 #
-# Convert all .mkv files in directory to .mp4
+# Convert all .mkv and .webm files in directory to .mp4
 #
 set -euo pipefail
-for i in *.mkv; do
-  ffmpeg -i "$i" -vcodec copy -acodec copy "${i%.mkv}.mp4"
+for v in *.mkv; do
+  ffmpeg -i "$v" -vcodec copy -acodec copy "${v%.mkv}.mp4"
+done
+for  v in *.webm; do
+  ffmpeg -i "$v" -vcodec libx264 "${v%.webm}.mp4"
 done
