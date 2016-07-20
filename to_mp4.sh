@@ -5,9 +5,9 @@
 set -euo pipefail
 if ls *.mkv 2</dev/null; then
   for v in *.mkv; do
-    ffmpeg -i "$v" -vcodec copy -acodec copy "${v%.mkv}.mp4" ||
-      ffmpeg -i "$v" -vcodec copy -c:a aac "${v%.mkv}.mp4" ||
-      ffmpeg -i "$v" -c:v libx264 -acodec copy "${v%.mkv}.mp4"
+    ffmpeg -i "$v" -vcodec copy -acodec copy -scodec mov_text "${v%.mkv}.mp4" ||
+      ffmpeg -i "$v" -vcodec copy -c:a aac -scodec mov_text "${v%.mkv}.mp4" ||
+      ffmpeg -i "$v" -c:v libx264 -acodec copy -scodec mov_text "${v%.mkv}.mp4"
     [[ -e "${v%.mkv}.mp4" ]] && rm "$v"
   done
 fi
