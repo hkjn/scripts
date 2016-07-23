@@ -11,12 +11,12 @@ set -e
 # TODO: The following does not fail, even when the backing physical
 # HDD is disconnected. Why? (We could check if UUID of backing
 # physical disk exists first..)
-cryptsetup luksOpen /dev/dumbo/clown clown_clear --key-file=/root/keys/clownkey.randomtext
-mount /dev/mapper/clown_clear /media/clown
+sudo cryptsetup luksOpen /dev/dumbo/clown clown_clear --key-file=/root/keys/clownkey.randomtext
+sudo mount /dev/mapper/clown_clear /media/clown
 echo "Mounted /media/clown."
 
-mount /dev/mapper/dumbo-timothy /media/timothy
+sudo mount /dev/mapper/dumbo-timothy /media/timothy
 echo "Mounted /media/timothy."
 
 # Set time to power-down disk to 3 min (36 * 5 sec) without activity.
-hdparm -S 36 /dev/sdb
+sudo hdparm -S 36 /dev/sdb
