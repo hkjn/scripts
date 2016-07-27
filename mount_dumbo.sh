@@ -6,7 +6,7 @@
 #
 # This script requires root permissions.
 
-set -e
+set -euo pipefail
 
 # TODO: The following does not fail, even when the backing physical
 # HDD is disconnected. Why? (We could check if UUID of backing
@@ -19,4 +19,4 @@ sudo mount /dev/mapper/dumbo-timothy /media/timothy
 echo "Mounted /media/timothy."
 
 # Set time to power-down disk to 3 min (36 * 5 sec) without activity.
-sudo hdparm -S 36 /dev/sdb
+sudo hdparm -S 36 /dev/disk/by-id/wwn-0x5000c500656aa99b
