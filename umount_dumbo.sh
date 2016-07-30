@@ -15,10 +15,10 @@ set -e
 # rsync -avz /media/clown/src /media/farouk/
 # rsync -avz /media/clown/notes /media/farouk/
 
-umount /media/clown
-cryptsetup remove clown_clear
+sudo umount /media/clown
+sudo cryptsetup remove clown_clear
 echo "Unmounted /media/clown."
 
-umount /media/timothy
+sudo umount /media/timothy
 echo "Unmounted /media/timothy."
 
