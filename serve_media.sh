@@ -13,6 +13,7 @@ start() {
 }
 start musashi /media/musashi 8080
 start staging $HOME/staging 8081
-start usb /run/media/zero/USB20FD 8082
+start staging $HOME/media 8082
+start usb /run/media/zero/USB20FD 8083
 
 echo "Started media fileserver containers."
