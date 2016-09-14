@@ -13,7 +13,7 @@ start() {
 }
 start musashi /media/musashi 8080
 start staging $HOME/staging 8081
-start staging $HOME/media 8082
+start media $HOME/media 8082
 start timothy /media/timothy/movies 8083
 start usb1 /run/media/zero/USB20FD 8084
 start usb2 /run/media/zero/f538fa97-80d3-4ef3-9010-99460637a69a 8085
