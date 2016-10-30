@@ -1,6 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 # Play some random tunes.
+
 MUSIC_DIR=${MUSIC_DIR:-/home/$USER/media/music/}
 [[ -e $MUSIC_DIR ]] || {
   echo "No such MUSIC_DIR='$MUSIC_DIR'" >&2
