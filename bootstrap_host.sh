@@ -14,17 +14,27 @@ die() {
 
 RUSER=${RUSER:-"zero"}
 
-useradd -G sudo,docker -s /bin/bash $RUSER
+adduser -G docker -s /bin/bash $RUSER
 mkdir -p /home/$RUSER/.ssh
 cp .ssh/authorized_keys /home/$RUSER/.ssh/
+# TODO: No usergroup on alpine; just do $RUSER:wheel?
 chown -R $RUSER:$RUSER /home/$RUSER/
 chmod 700 /home/$RUSER/.ssh
 chmod 400 /home/$RUSER/.ssh/authorized_keys
+# TODO: On Alpine, '#Port 22' is commented out..
 sed -e s/22/6200/ \
 		-e s/'PermitRootLogin without-password'/'PermitRootLogin no'/ \
 		-i /etc/ssh/sshd_config
-systemctl restart sshd
+
+if which systemctl 1>/dev/null; then
+  systemctl restart sshd
+else
+  service sshd restart
+fi
 passwd -d $RUSER
+if which sudo 1>/dev/null; then
+  apk add sudo
+fi
 echo "$RUSER ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/user_sudo
 chmod 0440 /etc/sudoers.d/user_sudo
 
