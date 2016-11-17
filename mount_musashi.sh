@@ -3,11 +3,13 @@
 # Mounts the "musashi" logical volume under the /dev/miyato volume group:
 # /dev/miyato/musashi: LUKS
 #
-# This script requires root permissions.
 
 set -e
 
-sudo cryptsetup luksOpen /dev/miyamoto/musashi musashi_clear --key-file=/root/keys/musashi-key.randomtext
+[[ -e /dev/mapper/musashi_clear ]] || {
+  sudo cryptsetup luksOpen /dev/miyamoto/musashi musashi_clear \
+       --key-file=/root/keys/musashi-key.randomtext
+}
 sudo mount /dev/mapper/musashi_clear /media/musashi
 echo "Mounted /media/musashi."
 
