@@ -11,7 +11,9 @@ set -euo pipefail
 # TODO: The following does not fail, even when the backing physical
 # HDD is disconnected. Why? (We could check if UUID of backing
 # physical disk exists first..)
-sudo cryptsetup luksOpen /dev/dumbo/clown clown_clear --key-file=/root/keys/clownkey.randomtext
+[[ -e /dev/mapper/clown_clear ]] || {
+  sudo cryptsetup luksOpen /dev/dumbo/clown clown_clear --key-file=/root/keys/clownkey.randomtext
+}
 sudo mount /dev/mapper/clown_clear /media/clown
 echo "Mounted /media/clown."
 
