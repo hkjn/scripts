@@ -12,12 +12,19 @@ load() {
 
 load "logging.sh"
 
-[ "$#" -eq 1 ] || fatal "Usage: $0 [encrypted file, without .pgp]"
+[[ "$#" -eq 1 ]] || fatal "Usage: $0 [encrypted file]"
 
 BASE="$GOPATH/src/bitbucket.org/hkjn/passwords"
-CLEAR="$BASE/clear/$1"
-CRYPT="$BASE/$1.pgp"
-RECIPIENT="me@hkjn.me"
+CRYPT="$BASE/$1"
+if [[ ! -e "$CRYPT" ]]; then
+  info "No such file '$CRYPT', trying $CRYPT.pgp.."
+  CRYPT="$CRYPT.pgp"
+fi
+if [[ ! -e "$CRYPT" ]]; then
+  info "No such file '$CRYPT'"
+  fatal "No such file '$CRYPT' or '$CRYPT.pgp'"
+fi
+CLEAR="$BASE/clear/${1%.pgp}"
 
 mkdir -p clear/
 echo "Decrypting $CRYPT -> $CLEAR"

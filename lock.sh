@@ -22,11 +22,16 @@ load "logging.sh"
 # TODO(hkjn): Add func for decrypting string in clear/ file without the plaintext bytes hitting disk.
 BASE="$GOPATH/src/bitbucket.org/hkjn/passwords"
 CLEAR="$BASE/clear/$1"
-CRYPT="$BASE/$1.pgp"
 RECIPIENT="me@hkjn.me"
 
-[ -e "$CLEAR" ] || fatal "No such file: '$CLEAR'"
+if [[ ! -e "$CLEAR" ]]; then
+  CLEAR="${CLEAR%.pgp}"
+  CRYPT="$BASE/$1"
+else
+  CRYPT="$BASE/$1.pgp"
+fi
 
+[[ -e "$CLEAR" ]] || fatal "No such file: '$CLEAR'"
 info "Encrypting clear/${CLEAR} -> ${CLEAR}.pgp"
 gpg --output $CRYPT --encrypt --armor --recipient $RECIPIENT $CLEAR
 srm -fvi ${CLEAR}{,~}
