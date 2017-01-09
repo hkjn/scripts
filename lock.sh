@@ -34,4 +34,12 @@ fi
 [[ -e "$CLEAR" ]] || fatal "No such file: '$CLEAR'"
 info "Encrypting clear/${CLEAR} -> ${CLEAR}.pgp"
 gpg --output $CRYPT --encrypt --armor --recipient $RECIPIENT $CLEAR
-srm -fvi ${CLEAR}{,~}
+if which srm 1>/dev/null; then
+  srm -fvi ${CLEAR}*
+elif which shred 1>/dev/null; then
+  shred ${CLEAR}*
+  rm -vrf ${CLEAR}*
+else
+  echo "Neither 'srm' or 'shred' was installed; can't remove '${CLEAR}' securely."
+  rm -vrf ${CLEAR}*
+fi
