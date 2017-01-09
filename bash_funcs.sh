@@ -95,21 +95,6 @@ function mw() {
 	return 0
 }
 
-# create-docker-vm creates the "default" VirtualBox VM for OS X.
-function create-docker-vm() {
-	[ $(uname) == "Darwin" ] && docker-machine create --driver virtualbox default
-}
-
-# load-docker-env loads environment variables for OS X Docker machine.
-function load-docker-env() {
-	[ $(uname) == "Darwin" ] && eval $(docker-machine env default)
-}
-
-# start-docker-vm starts OS X Docker machine.
-function start-docker-vm() {
-	[ $(uname) == "Darwin" ] && echo $(docker-machine start default)
-}
-
 if [ $(uname) == "Darwin" ]; then
 	export LC_ALL=en_US.UTF-8
 	export LANG=en_US.UTF-8
