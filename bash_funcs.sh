@@ -110,6 +110,11 @@ function start-docker-vm() {
 	[ $(uname) == "Darwin" ] && echo $(docker-machine start default)
 }
 
+if [ $(uname) == "Darwin" ]; then
+	export LC_ALL=en_US.UTF-8
+	export LANG=en_US.UTF-8
+fi
+
 
 # Trap + log commands.
 trap command_log DEBUG
