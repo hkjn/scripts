@@ -35,3 +35,4 @@ fi
 info "Encrypting clear/${CLEAR} -> ${CLEAR}.pgp"
 gpg --output $CRYPT --encrypt --armor --recipient $RECIPIENT $CLEAR
 srm -fvi ${CLEAR}{,~}
+echo RELOADAGENT | gpg-connect-agent
