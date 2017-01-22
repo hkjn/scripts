@@ -15,22 +15,6 @@ load() {
 	export BASE="$p"
 }
 
-load "logging.sh"
-
-[[ "$#" -eq 1 ]] || fatal "Usage: $0 [encrypted file]"
-
-BASE="$GOPATH/src/bitbucket.org/hkjn/passwords"
-CRYPT="$BASE/$1"
-RECIPIENT="me@hkjn.me"
-[[ -e "$CRYPT" ]] || {
-  info "No such file '$CRYPT', trying $CRYPT.pgp.."
-  CRYPT="$CRYPT.pgp"
-}
-[[ -e "$CRYPT" ]] || {
-  info "No such file '$CRYPT'"
-  fatal "No such file '$CRYPT' or '$CRYPT.pgp'"
-}
-
 cleanup() {
   if which srm 1>/dev/null; then
     srm -fvi ${CLEAR}*
@@ -45,14 +29,30 @@ cleanup() {
   echo RELOADAGENT | gpg-connect-agent
 }
 
+load "logging.sh"
+
+[[ "$#" -eq 1 ]] || fatal "Usage: $0 [encrypted file]"
+
+BASE="$GOPATH/src/bitbucket.org/hkjn/passwords"
+CRYPT="$BASE/$1"
+RECIPIENT="me@hkjn.me"
 CLEAR="$(mktemp)"
 trap cleanup EXIT
+[[ -e "$CRYPT" ]] || {
+  info "No such file '$CRYPT', trying $CRYPT.pgp.."
+  CRYPT="$CRYPT.pgp"
+}
 
-info "Decrypting $CRYPT -> $CLEAR"
-gpg --batch --yes --output $CLEAR --decrypt $CRYPT
-chmod 600 $CLEAR
+CHECKSUM_BEFORE=""
+if [[ -e "$CRYPT" ]]; then
+  info "Decrypting $CRYPT -> $CLEAR"
+  gpg --batch --yes --output $CLEAR --decrypt $CRYPT
+  chmod 600 $CLEAR
+  CHECKSUM_BEFORE=$(sha256sum $CLEAR)
+else
+  info "No such file '$CRYPT', creating new file '$CLEAR'"
+fi
 
-CHECKSUM_BEFORE=$(sha256sum $CLEAR)
 nano $CLEAR
 CHECKSUM_AFTER=$(sha256sum $CLEAR)
 
