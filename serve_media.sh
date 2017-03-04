@@ -18,6 +18,7 @@ start tvideo /media/timothy/video 8083
 start tcomedic /media/timothy/comedic 8084
 start teducational /media/timothy/educational 8085
 start tmusic /media/timothy/music 8086
+start tanime /media/timothy/anime 8087
 #start usb1 /run/media/zero/USB20FD 8085
 #start usb2 /run/media/zero/f538fa97-80d3-4ef3-9010-99460637a69a 8086
 
