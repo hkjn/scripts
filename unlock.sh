@@ -25,8 +25,10 @@ cleanup() {
     echo "Neither 'srm' or 'shred' was installed; can't remove '${CLEAR}' securely."
     rm -vrf ${CLEAR}*
   fi
-  info "Dropping GPG identities from agent.."
-  echo RELOADAGENT | gpg-connect-agent
+  if which gpg-connect-agent 1>/dev/null; then
+    info "Dropping GPG identities from agent.."
+    echo RELOADAGENT | gpg-connect-agent
+  fi
 }
 
 load "logging.sh"
@@ -46,7 +48,7 @@ trap cleanup EXIT
 CHECKSUM_BEFORE=""
 if [[ -e "$CRYPT" ]]; then
   info "Decrypting $CRYPT -> $CLEAR"
-  gpg --batch --yes --output $CLEAR --decrypt $CRYPT
+  gpg --yes --output $CLEAR --decrypt $CRYPT
   chmod 600 $CLEAR
   CHECKSUM_BEFORE=$(sha256sum $CLEAR)
 else
@@ -58,7 +60,7 @@ CHECKSUM_AFTER=$(sha256sum $CLEAR)
 
 if [[ $CHECKSUM_BEFORE != $CHECKSUM_AFTER ]]; then
   info "Contents changed, re-encrypting ${CLEAR} -> $CRYPT"
-  gpg --batch --yes --output $CRYPT --encrypt --armor --recipient $RECIPIENT $CLEAR
+  gpg --yes --output $CRYPT --encrypt --armor --recipient $RECIPIENT $CLEAR
 fi
 
 info "All done."
