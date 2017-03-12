@@ -52,52 +52,68 @@ function prevent_dirty_tree() {
 }
 
 function prevent_hacks() {
-	echo "Checking for strings indicating hacks.." >&2
-	if [ git rev-parse HEAD >/dev/null 2>&1 ]; then
-		# TODO(hkjn): This also can return files that are removed in the
-		# working tree, which we should not be trying to grep through..
-		FILES=$(git diff --cached --name-only)
-	else
-		FILES=$(git ls-files -c)
-	fi
-	failed=0
-	if grep -ir "FIXME" $FILES 2>/dev/null; then
-		echo "Please remove offending string." >&2
-		failed=1
-	fi
-	if grep -ir "DO NOT SUBMIT" $FILES; then
-		echo "Please remove offending string." >&2
-		failed=1
-	fi
-	if [ $failed -ne 0 ]; then
-		return 1
-	fi
-	return 0
+  echo "Checking for strings indicating hacks.." >&2
+  local files=""
+  if [ git rev-parse HEAD >/dev/null 2>&1 ]; then
+    # TODO(hkjn): This also can return files that are removed in the
+    # working tree, which we should not be trying to grep through..
+    files=$(git diff --cached --name-only | grep -v vendor/)
+  else
+    files=$(git ls-files -c | grep -v vendor/)
+  fi
+
+  if [[ ! "$files" ]]; then
+    return 0 # Nothing to check.
+  fi
+  local failed=0
+
+  local baseDir="$(cd "$(dirname "$0")" && pwd)/../.."
+  cd $baseDir
+
+  for file in $files; do
+    if grep -ni FIXME "$file"; then
+      echo "^^ Please remove offending string 'FIXME' from '$file'." >&2
+      failed=1
+    fi
+    if grep -ni "DO NOT SUBMIT" "$file"; then
+      echo "^^ Please remove offending string 'DO NOT SUBMIT' from '$file'." >&2
+      failed=1
+    fi
+  done
+
+  if [[ $failed -ne 0 ]]; then
+    return 1
+  fi
+  return 0
 }
 
 function run_go_tests() {
-	echo "Running all Go tests.." >&2
-	targets=$(go list ./... 2>/dev/null | grep -v /vendor/)
-	if [ ! "$targets" ]; then
-		return 0 # Nothing to test
-	fi
+  echo "Running all Go tests.." >&2
+  targets=$(go list ./... 2>/dev/null | grep -v /vendor/)
+  if [[ ! "$targets" ]]; then
+    return 0 # Nothing to test
+  fi
 
-	output=$(go test -race $targets 2>&1)
-	if [ $? -eq 0 ]; then
-		return 0
-	fi
-	if echo "$output" | grep "matched no packages" >/dev/null; then
-		# Special case for "there's no packages in this repo", which is fine.
-		return 0
-	fi
-	echo "Go tests failed:" >&2
-	echo "$output" >&2
-	return 1
+  output=$(go test -race $targets 2>&1)
+  if [ $? -eq 0 ]; then
+    return 0
+  fi
+  if echo "$output" | grep "matched no packages" >/dev/null; then
+    # Special case for "there's no packages in this repo", which is fine.
+    return 0
+  fi
+  echo "Go tests failed:" >&2
+  echo "$output" >&2
+  return 1
 }
 
 function run_go_vet() {
 	echo "Running Go vet command.." >&2
-	output=$(go vet ./... 2>&1)
+	local targets=$(go list ./... 2>/dev/null | grep -v /vendor/)
+	if [[ ! "$targets" ]]; then
+		return 0 # Nothing to test
+	fi
+	output=$(go vet $targets 2>&1)
 	if [ $? -eq 0 ]; then
 		return 0
 	fi
