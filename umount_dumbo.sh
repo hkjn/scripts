@@ -6,7 +6,7 @@
 #
 # This script requires root permissions.
 
-set -e
+set -euo pipefail
 
 # TODO: Also run periodic cron (30m?) in case of unexpected
 # disconnect.
@@ -16,9 +16,14 @@ set -e
 # rsync -avz /media/clown/notes /media/farouk/
 
 sudo umount /media/clown
-sudo cryptsetup remove clown_clear
 echo "Unmounted /media/clown."
+echo "Running fsck.."
+sudo fsck /dev/mapper/clown_clear
+sudo cryptsetup remove clown_clear
 
 sudo umount /media/timothy
 echo "Unmounted /media/timothy."
+echo "Running fsck.."
+sudo fsck /dev/mapper/dumbo-timothy
 
+echo "All done."
