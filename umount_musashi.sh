@@ -8,6 +8,7 @@
 set -e
 
 sudo umount /media/musashi
+sudo fsck /dev/mapper/musashi_clear
 sudo cryptsetup remove musashi_clear
 echo "Unmounted /media/musashi"
 
