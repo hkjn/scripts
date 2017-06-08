@@ -54,5 +54,5 @@ echo 'Done bootstrapping host.'
 
 # TODO(hkjn): Should report in that this host was bootstrapped:
 # - set up systemd .timer + .service to publish message that this host is available to MQ system on foo.hkjn.me
-
+# - include the ssh-keygen -l -f /etc/ssh/ssh_host_ecdsa_key
 
