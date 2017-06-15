@@ -7,8 +7,15 @@
 
 set -e
 
-sudo umount /media/musashi
-sudo fsck /dev/mapper/musashi_clear
-sudo cryptsetup remove musashi_clear
-echo "Unmounted /media/musashi"
+if mountpoint -q /media/musashi; then
+  echo "Unmounting /media/musashi"
+  sudo umount /media/musashi
+fi
+if [[ -e /dev/mapper/musashi_clear ]]; then
+  echo "Running fsck on /dev/mapper/musashi_clear.."
+  sudo fsck /dev/mapper/musashi_clear
+  echo "Removing /dev/mapper/musashi_clear.."
+  sudo cryptsetup remove musashi_clear
+fi
+echo "All done."
 
