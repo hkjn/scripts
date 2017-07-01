@@ -15,13 +15,15 @@ die() {
 RUSER=${RUSER:-"zero"}
 source /etc/os-release
 ID_LIKE=${ID_LIKE:-""}
-if [[ "$ID_LIKE" = "debian" ]]; then
+if [[ "$ID_LIKE" = "archlinux" ]]; then
+  useradd -G docker --create-home --shell /bin/bash --disabled-password zero
+elif [[ "$ID_LIKE" = "debian" ]]; then
   adduser --ingroup docker --shell /bin/bash --disabled-password zero
 else
   adduser -G docker -s /bin/bash $RUSER
 fi
 mkdir -p /home/$RUSER/.ssh
-cp .ssh/authorized_keys /home/$RUSER/.ssh/
+cp $HOME/.ssh/authorized_keys /home/$RUSER/.ssh/
 chown -R $(id -u $RUSER):$(id -g $RUSER) /home/$RUSER/
 chmod 700 /home/$RUSER/.ssh
 chmod 400 /home/$RUSER/.ssh/authorized_keys
