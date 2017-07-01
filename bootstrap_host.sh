@@ -16,9 +16,9 @@ RUSER=${RUSER:-"zero"}
 source /etc/os-release
 ID_LIKE=${ID_LIKE:-""}
 if [[ "$ID_LIKE" = "archlinux" ]]; then
-  useradd -G docker --create-home --shell /bin/bash --disabled-password zero
+  useradd -G docker --create-home --shell /bin/bash $RUSER
 elif [[ "$ID_LIKE" = "debian" ]]; then
-  adduser --ingroup docker --shell /bin/bash --disabled-password zero
+  adduser --ingroup docker --shell /bin/bash --disabled-password $RUSER
 else
   adduser -G docker -s /bin/bash $RUSER
 fi
