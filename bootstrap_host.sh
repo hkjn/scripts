@@ -15,7 +15,8 @@ die() {
 RUSER=${RUSER:-"zero"}
 source /etc/os-release
 ID_LIKE=${ID_LIKE:-""}
-if [[ "$ID_LIKE" = "archlinux" ]]; then
+ID=${ID:-""}
+if [[ "$ID_LIKE" = "archlinux" ]] || [[ "$ID" = "coreos" ]]; then
   useradd -G docker --create-home --shell /bin/bash $RUSER
 elif [[ "$ID_LIKE" = "debian" ]]; then
   adduser --ingroup docker --shell /bin/bash --disabled-password $RUSER
@@ -27,18 +28,26 @@ cp $HOME/.ssh/authorized_keys /home/$RUSER/.ssh/
 chown -R $(id -u $RUSER):$(id -g $RUSER) /home/$RUSER/
 chmod 700 /home/$RUSER/.ssh
 chmod 400 /home/$RUSER/.ssh/authorized_keys
-# TODO: On Alpine, '#Port 22' is commented out..
-sed -e s/22/6200/ \
-		-e s/'PermitRootLogin without-password'/'PermitRootLogin no'/ \
-		-i /etc/ssh/sshd_config
 
+if grep -q 22 /etc/ssh/sshd_config; then
+  sed -e s/22/6200/ \
+		  -i /etc/ssh/sshd_config
+else
+  echo 'Port 6200' >> /etc/ssh/sshd_config
+fi
+if grep -q PermitRootLogin /etc/ssh/sshd_config; then
+  sed -e s/'PermitRootLogin without-password'/'PermitRootLogin no'/ \
+		  -i /etc/ssh/sshd_config
+else
+  echo 'PermitRootLogin no' >> /etc/ssh/sshd_config
+fi
 if which systemctl 1>/dev/null; then
   systemctl restart sshd
 else
   service sshd restart
 fi
 passwd -d $RUSER
-if which sudo 1>/dev/null; then
+if ! which sudo 1>/dev/null; then
   apk add sudo
 fi
 echo "$RUSER ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/user_sudo
