@@ -53,6 +53,8 @@ fi
 echo "$RUSER ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/user_sudo
 chmod 0440 /etc/sudoers.d/user_sudo
 
+# TODO: Following seems to start interactive shell on ubuntu; should
+# run following commands automatically..
 su - $RUSER
 mkdir -p src/hkjn.me
 cd src/hkjn.me
