@@ -8,7 +8,7 @@
 # closed, and is stored on tempfs only in the meanwhile.
 #
 declare BASE=${GOPATH}/src/bitbucket.org/hkjn/passwords
-declare SUB=${SUB:-""}
+declare PASSWORD_SUB=${PASSWORD_SUB:-""}
 
 cd ${BASE}
 source "logging.sh"
