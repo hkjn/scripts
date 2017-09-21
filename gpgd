@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+docker run --rm -it -v $HOME/.gnupg:/home/gpg/.gnupg hkjn/gpg:$(uname -m)
