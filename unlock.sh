@@ -32,17 +32,15 @@ cleanup() {
 [[ "$#" -eq 1 ]] || fatal "Usage: $0 [encrypted file]"
 declare TARGET=${1}
 declare CRYPT=${BASE}/${TARGET}
-declare RECIPIENT="me@hkjn.me"
+declare PASSWORD_RECIPIENT=${PASSWORD_RECIPIENT:-"me@hkjn.me"}
 declare CLEAR=$(mktemp)
 
-if [[ "${SUB}" ]]; then
-  CRYPT=${BASE}/${SUB}/${TARGET}
-  if [[ "${SUB}" = "ios" ]]; then
-    RECIPIENT="425BF55E014AF99C3BA6A6E8D85FAD19F4971232"
-  else
-    fatal "No key specified for subdirectory ${SUB}."
+if [[ "${PASSWORD_SUB}" ]]; then
+  CRYPT=${BASE}/${PASSWORD_SUB}/${TARGET}
+  if [[ ! "${PASSWORD_RECIPIENT}" ]]; then
+    fatal "No PASSWORD_RECIPIENT specified for subdirectory '${PASSWORD_SUB}'."
   fi
-  debug "Using subdirectory ${SUB} and recipient ${RECIPIENT}.."
+  debug "Using subdirectory ${PASSWORD_SUB} and recipient ${PASSWORD_RECIPIENT}.."
 fi
 
 trap cleanup EXIT
