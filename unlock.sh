@@ -79,7 +79,7 @@ if [[ $CHECKSUM_BEFORE != $CHECKSUM_AFTER ]]; then
       -v ${CLEAR}:/clearfile \
       -v $(dirname ${CRYPT}):/crypt \
     hkjn/gpg:$(uname -m) -c \
-      "gpg --yes --output /crypt/$(basename ${CRYPT}) --encrypt --armor --recipient ${RECIPIENT} /clearfile"
+      "gpg --yes --output /crypt/$(basename ${CRYPT}) --encrypt --armor --recipient ${PASSWORD_RECIPIENT} /clearfile"
   if [[ $? -ne 0 ]]; then
     fatal "Error encrypting file."
   fi
