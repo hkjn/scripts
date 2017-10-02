@@ -9,6 +9,7 @@
 #
 declare BASE=${GOPATH}/src/bitbucket.org/hkjn/passwords
 declare PASSWORD_SUB=${PASSWORD_SUB:-""}
+declare ALWAYS_ENCRYPT=${ALWAYS_ENCRYPT:-""}
 
 cd ${BASE}
 source "logging.sh"
@@ -32,15 +33,15 @@ cleanup() {
 [[ "$#" -eq 1 ]] || fatal "Usage: $0 [encrypted file]"
 declare TARGET=${1}
 declare CRYPT=${BASE}/${TARGET}
-declare PASSWORD_RECIPIENT=${PASSWORD_RECIPIENT:-"me@hkjn.me"}
+declare PASSWORD_RECIPIENTS=${PASSWORD_RECIPIENTS:-""}
 declare CLEAR=$(mktemp)
 
 if [[ "${PASSWORD_SUB}" ]]; then
   CRYPT=${BASE}/${PASSWORD_SUB}/${TARGET}
-  if [[ ! "${PASSWORD_RECIPIENT}" ]]; then
-    fatal "No PASSWORD_RECIPIENT specified for subdirectory '${PASSWORD_SUB}'."
+  if [[ ! "${PASSWORD_RECIPIENTS}" ]]; then
+    fatal "No PASSWORD_RECIPIENTS specified for subdirectory '${PASSWORD_SUBS}'."
   fi
-  debug "Using subdirectory ${PASSWORD_SUB} and recipient ${PASSWORD_RECIPIENT}.."
+  debug "Using subdirectory ${PASSWORD_SUB} and recipients ${PASSWORD_RECIPIENTS}.."
 fi
 
 trap cleanup EXIT
@@ -70,8 +71,13 @@ fi
 
 nano $CLEAR
 CHECKSUM_AFTER=$(sha256sum $CLEAR)
+declare RECIPIENTS=""
+for RECIPIENT in ${PASSWORD_RECIPIENTS}; do
+	RECIPIENTS="${RECIPIENTS} --recipient ${RECIPIENT}"
+done
+debug "Using recipients ${RECIPIENTS}"
 
-if [[ $CHECKSUM_BEFORE != $CHECKSUM_AFTER ]]; then
+if [[ $CHECKSUM_BEFORE != $CHECKSUM_AFTER ]] || [[ "${ALWAYS_ENCRYPT}" ]]; then
   info "Contents changed, re-encrypting ${CLEAR} -> $CRYPT"
   export CLEAR=${CLEAR} CRYPT=${CRYPT}
   docker run --rm -it \
@@ -79,7 +85,7 @@ if [[ $CHECKSUM_BEFORE != $CHECKSUM_AFTER ]]; then
       -v ${CLEAR}:/clearfile \
       -v $(dirname ${CRYPT}):/crypt \
     hkjn/gpg:$(uname -m) -c \
-      "gpg --yes --output /crypt/$(basename ${CRYPT}) --encrypt --armor --recipient ${PASSWORD_RECIPIENT} /clearfile"
+      "gpg --yes --output /crypt/$(basename ${CRYPT}) --encrypt --armor ${RECIPIENTS} /clearfile"
   if [[ $? -ne 0 ]]; then
     fatal "Error encrypting file."
   fi
