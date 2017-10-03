@@ -69,7 +69,13 @@ else
   info "No such file '$CRYPT', creating new file '$CLEAR'"
 fi
 
-nano $CLEAR
+if [[ -p /dev/stdin ]]; then
+  debug "/dev/stdin is a pipe, attempting to read it"
+  cat > ${CLEAR}
+else
+  nano ${CLEAR}
+fi
+
 CHECKSUM_AFTER=$(sha256sum $CLEAR)
 declare RECIPIENTS=""
 for RECIPIENT in ${PASSWORD_RECIPIENTS}; do
@@ -80,7 +86,7 @@ debug "Using recipients ${RECIPIENTS}"
 if [[ $CHECKSUM_BEFORE != $CHECKSUM_AFTER ]] || [[ "${ALWAYS_ENCRYPT}" ]]; then
   info "Contents changed, re-encrypting ${CLEAR} -> $CRYPT"
   export CLEAR=${CLEAR} CRYPT=${CRYPT}
-  docker run --rm -it \
+  docker run --rm \
       -v ${HOME}/.gnupg:/home/gpg/.gnupg \
       -v ${CLEAR}:/clearfile \
       -v $(dirname ${CRYPT}):/crypt \
