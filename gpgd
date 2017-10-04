@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-docker run --rm -it -v $HOME/.gnupg:/home/gpg/.gnupg hkjn/gpg:$(uname -m)
+docker run --rm -it -v $HOME/.gnupg:/home/gpg/.gnupg -v $HOME/src/bitbucket.org/hkjn/passwords:/passwords --workdir /passwords hkjn/gpg:$(uname -m)
