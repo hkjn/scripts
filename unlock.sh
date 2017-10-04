@@ -51,7 +51,7 @@ trap cleanup EXIT
 }
 
 CHECKSUM_BEFORE=""
-if [[ -e "$CRYPT" ]]; then
+if [[ -e "$CRYPT" ]] && [[ ! -p /dev/stdin ]]; then
   info "Decrypting $CRYPT -> $CLEAR"
   export CLEAR=$CLEAR CRYPT=$CRYPT
   docker run --rm -it \
