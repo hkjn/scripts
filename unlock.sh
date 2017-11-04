@@ -7,6 +7,9 @@
 # Regardless, the plaintext file is securely removed as the editor is
 # closed, and is stored on tempfs only in the meanwhile.
 #
+# Unencrypted files can be encrypted with:
+# cat holdings.json | unlock.sh holdings.json.gpg
+#
 declare BASE=${GOPATH}/src/bitbucket.org/hkjn/passwords
 declare PASSWORD_SUB=${PASSWORD_SUB:-""}
 declare ALWAYS_ENCRYPT=${ALWAYS_ENCRYPT:-""}
