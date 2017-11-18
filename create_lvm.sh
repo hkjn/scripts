@@ -2,6 +2,7 @@
 #
 # Sample script for setting up LVM on Ubuntu.
 #
+set -euo pipefail
 
 apt-get -y update
 apt-get -y install gdisk lvm2
