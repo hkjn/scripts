@@ -61,7 +61,7 @@ if [[ -e "$CRYPT" ]] && [[ ! -p /dev/stdin ]]; then
       -v $HOME/.gnupg:/home/gpg/.gnupg \
       -v ${CLEAR}:/clearfile \
       -v $(dirname ${CRYPT}):/crypt \
-    hkjn/gpg:$(uname -m) -c \
+    hkjn/gpg -c \
       "gpg --yes --output /clearfile --decrypt /crypt/$(basename ${CRYPT})"
   if [[ $? -ne 0 ]]; then
     fatal "Error decrypting file."
@@ -93,7 +93,7 @@ if [[ $CHECKSUM_BEFORE != $CHECKSUM_AFTER ]] || [[ "${ALWAYS_ENCRYPT}" ]]; then
       -v ${HOME}/.gnupg:/home/gpg/.gnupg \
       -v ${CLEAR}:/clearfile \
       -v $(dirname ${CRYPT}):/crypt \
-    hkjn/gpg:$(uname -m) -c \
+    hkjn/gpg -c \
       "gpg --yes --output /crypt/$(basename ${CRYPT}) --encrypt --armor ${RECIPIENTS} /clearfile"
   if [[ $? -ne 0 ]]; then
     fatal "Error encrypting file."
